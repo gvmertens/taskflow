@@ -90,7 +90,7 @@ public class TaskService {
     public TaskResponse update(UUID id, TaskRequest request) {
         Task task = getOrThrow(id);
 
-        if (task.getStatus() == StatusTarefa.CONCLUIDA || task.getStatus() == StatusTarefa.CANCELADA) {
+        if (task.getStatus().isEncerrada()) {
             throw new IllegalStateException(
                     "Não é possível atualizar uma tarefa encerrada (status: " + task.getStatus() + ")");
         }
