@@ -2,7 +2,7 @@ package br.com.sctec.taskflow.dto;
 
 import br.com.sctec.taskflow.domain.entity.Task;
 import br.com.sctec.taskflow.domain.enums.Criticidade;
-import br.com.sctec.taskflow.domain.enums.Status;
+import br.com.sctec.taskflow.domain.enums.StatusTarefa;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -18,7 +18,7 @@ public record TaskResponse(
         String descricao,
         LocalDate prazo,
         Criticidade criticidade,
-        Status status,
+        StatusTarefa status,
         Integer scorePrioridade,
         Instant concluidaEm,
         Instant criadoEm,

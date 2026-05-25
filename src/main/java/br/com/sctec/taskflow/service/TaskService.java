@@ -2,7 +2,7 @@ package br.com.sctec.taskflow.service;
 
 import br.com.sctec.taskflow.domain.entity.Task;
 import br.com.sctec.taskflow.domain.enums.Criticidade;
-import br.com.sctec.taskflow.domain.enums.Status;
+import br.com.sctec.taskflow.domain.enums.StatusTarefa;
 import br.com.sctec.taskflow.dto.TaskRequest;
 import br.com.sctec.taskflow.dto.TaskResponse;
 import br.com.sctec.taskflow.repository.TaskRepository;
@@ -34,7 +34,7 @@ public class TaskService {
                 .descricao(request.descricao())
                 .prazo(request.prazo())
                 .criticidade(request.criticidade())
-                .status(Status.PENDENTE)
+                .status(StatusTarefa.PENDENTE)
                 .build();
 
         // TODO: calcular score de prioridade via Priorizador
@@ -48,7 +48,7 @@ public class TaskService {
      * Ordenação padrão: scorePrioridade DESC, prazo ASC (definida no Pageable do controller).
      */
     @Transactional(readOnly = true)
-    public Page<TaskResponse> findAll(Status status, Criticidade criticidade, Pageable pageable) {
+    public Page<TaskResponse> findAll(StatusTarefa status, Criticidade criticidade, Pageable pageable) {
         Page<Task> page;
 
         if (status != null && criticidade != null) {
@@ -86,7 +86,7 @@ public class TaskService {
     public TaskResponse update(UUID id, TaskRequest request) {
         Task task = getOrThrow(id);
 
-        if (task.getStatus() == Status.CONCLUIDA || task.getStatus() == Status.CANCELADA) {
+        if (task.getStatus() == StatusTarefa.CONCLUIDA || task.getStatus() == StatusTarefa.CANCELADA) {
             throw new IllegalStateException(
                     "Não é possível atualizar uma tarefa encerrada (status: " + task.getStatus() + ")");
         }
