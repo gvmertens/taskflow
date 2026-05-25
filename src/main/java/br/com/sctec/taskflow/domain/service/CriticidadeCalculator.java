@@ -2,7 +2,6 @@ package br.com.sctec.taskflow.domain.service;
 
 import br.com.sctec.taskflow.domain.entity.Task;
 import br.com.sctec.taskflow.domain.enums.Criticidade;
-import br.com.sctec.taskflow.domain.enums.StatusTarefa;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -34,6 +33,11 @@ import java.time.temporal.ChronoUnit;
  */
 public class CriticidadeCalculator {
 
+    // Limiares de prazo (em dias) — centralizados para facilitar manutenção
+    private static final long LIMIAR_URGENTE = 0;
+    private static final long LIMIAR_ALTA    = 2;
+    private static final long LIMIAR_MEDIA   = 7;
+
     /**
      * Calcula a criticidade efetiva da tarefa em relação à data de referência.
      *
@@ -43,7 +47,7 @@ public class CriticidadeCalculator {
      */
     public Criticidade calcular(Task task, LocalDate referencia) {
         // Regra: tarefas encerradas nunca são recalculadas
-        if (isEncerrada(task.getStatus())) {
+        if (task.getStatus().isEncerrada()) {
             return task.getCriticidade();
         }
 
@@ -66,19 +70,10 @@ public class CriticidadeCalculator {
     private Criticidade calcularPorPrazo(LocalDate prazo, LocalDate referencia) {
         long diasRestantes = ChronoUnit.DAYS.between(referencia, prazo);
 
-        if (diasRestantes <= 0) {
-            // Prazo hoje ou já passou → CRITICAL
-            return Criticidade.URGENTE;
-        } else if (diasRestantes <= 2) {
-            // Próximos 2 dias → HIGH
-            return Criticidade.ALTA;
-        } else if (diasRestantes <= 7) {
-            // Próximos 7 dias → MEDIUM
-            return Criticidade.MEDIA;
-        } else {
-            // Após 7 dias → LOW
-            return Criticidade.BAIXA;
-        }
+        if (diasRestantes <= LIMIAR_URGENTE) return Criticidade.URGENTE; // Prazo hoje ou já passou → CRITICAL
+        if (diasRestantes <= LIMIAR_ALTA)    return Criticidade.ALTA;    // Próximos 2 dias → HIGH
+        if (diasRestantes <= LIMIAR_MEDIA)   return Criticidade.MEDIA;   // Próximos 7 dias → MEDIUM
+        return Criticidade.BAIXA;                                         // Após 7 dias → LOW
     }
 
     // -------------------------------------------------------------------------
@@ -90,28 +85,33 @@ public class CriticidadeCalculator {
      * como {@code ALTA} (equivalente à categoria WORK da especificação).
      * O teto é {@code URGENTE}.
      *
-     * @param base              criticidade calculada pelo prazo
+     * @param base               criticidade calculada pelo prazo
      * @param criticidadeUsuario criticidade informada no request
      * @return criticidade final após aplicação do bônus
      */
     private Criticidade aplicarBonus(Criticidade base, Criticidade criticidadeUsuario) {
-        if (criticidadeUsuario != Criticidade.ALTA) {
+        if (!deveElevar(criticidadeUsuario)) {
             return base;
         }
-
-        return switch (base) {
-            case BAIXA   -> Criticidade.MEDIA;   // LOW  → MEDIUM
-            case MEDIA   -> Criticidade.ALTA;    // MEDIUM → HIGH
-            case ALTA    -> Criticidade.URGENTE; // HIGH → CRITICAL
-            case URGENTE -> Criticidade.URGENTE; // CRITICAL já é o teto
-        };
+        return elevarUmNivel(base);
     }
 
-    // -------------------------------------------------------------------------
-    // Helpers
-    // -------------------------------------------------------------------------
+    /**
+     * Define quais criticidades informadas pelo usuário ativam o bônus de elevação.
+     */
+    private boolean deveElevar(Criticidade criticidadeUsuario) {
+        return criticidadeUsuario == Criticidade.ALTA;
+    }
 
-    private boolean isEncerrada(StatusTarefa status) {
-        return status == StatusTarefa.CONCLUIDA || status == StatusTarefa.CANCELADA;
+    /**
+     * Eleva a criticidade em exatamente um nível, respeitando o teto {@code URGENTE}.
+     */
+    private Criticidade elevarUmNivel(Criticidade criticidade) {
+        return switch (criticidade) {
+            case BAIXA   -> Criticidade.MEDIA;   // LOW    → MEDIUM
+            case MEDIA   -> Criticidade.ALTA;    // MEDIUM → HIGH
+            case ALTA    -> Criticidade.URGENTE; // HIGH   → CRITICAL
+            case URGENTE -> Criticidade.URGENTE; // CRITICAL já é o teto
+        };
     }
 }
