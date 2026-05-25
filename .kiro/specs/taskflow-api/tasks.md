@@ -6,7 +6,7 @@ Implementação incremental da TaskFlow API em Java 21 + Spring Boot 3.x + Postg
 
 ## Tasks
 
-- [ ] 1. Configurar estrutura do projeto Maven e dependências
+- [x] 1. Configurar estrutura do projeto Maven e dependências
   - Criar `pom.xml` com Java 21, Spring Boot 3.x, dependências de web, validation, data-jpa, postgresql, flyway, springdoc-openapi e jqwik
   - Configurar plugin JaCoCo com regra de cobertura mínima de 80% no pacote `br.com.taskflow.domain`
   - Criar classe principal `TaskFlowApplication.java` com `@SpringBootApplication`
