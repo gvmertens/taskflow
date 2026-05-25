@@ -222,62 +222,78 @@ Implementação incremental da TaskFlow API em Java 21 + Spring Boot 3.x + Postg
     - Delega para `TaskService.delete`
     - _Requirements: 5.1, 5.4_
 
-- [ ] 13. Implementar property tests de validação de entrada
-  - [ ]* 13.1 Escrever property test — Property 8: Título em branco é sempre rejeitado na criação
+- [x] 13. Implementar property tests de validação de entrada
+  - [x]* 13.1 Escrever property test — Property 8: Título em branco é sempre rejeitado na criação
     - **Property 8: Título em branco é sempre rejeitado na criação**
+    - Implementado em `TaskRequestPropertyTest` — `tituloBrancoESempreRejeitado` (100 amostras de strings em branco/vazias) e `tituloNuloESempreRejeitado`
+    - Usa `Validator` do Jakarta Bean Validation diretamente, sem Spring context
     - **Validates: Requirements 1.3**
 
-  - [ ]* 13.2 Escrever property test — Property 9: Prazo passado é sempre rejeitado
+  - [x]* 13.2 Escrever property test — Property 9: Prazo passado é sempre rejeitado
     - **Property 9: Prazo passado é sempre rejeitado**
+    - Implementado em `TaskRequestPropertyTest` — `prazoPassadoESempreRejeitado` (100 amostras de datas 1–3650 dias no passado) e `prazoNuloESempreRejeitado`
+    - Inclui teste de sanidade verificando que request válido não gera violações
     - **Validates: Requirements 1.4, 3.4**
 
-- [ ] 14. Implementar property tests de integração (camada de serviço)
-  - [ ]* 14.1 Escrever property test — Property 7: Score congelado após transição para estado terminal
+- [x] 14. Implementar property tests de integração (camada de serviço)
+  - [x]* 14.1 Escrever property test — Property 7: Score congelado após transição para estado terminal
     - **Property 7: Score congelado após transição para estado terminal**
+    - Implementado em `TaskServicePropertyTest` — `scoreCongeladoAposTransicaoTerminal`
     - **Validates: Requirements 6.7**
 
-  - [ ]* 14.2 Escrever property test — Property 10: Tarefa criada tem status PENDENTE e score calculado
-    - **Property 10: Tarefa criada tem status PENDENTE e score calculado**
+  - [x]* 14.2 Escrever property test — Property 10: Tarefa criada tem status PENDENTE e score calculado
+    - **Property 10: Tarefa criada tem status PENDENTE e criticidade calculada**
+    - Implementado em `TaskServicePropertyTest` — `tarefaCriadaTemStatusPendenteECriticidadeCalculada`
     - **Validates: Requirements 1.1, 1.6**
 
-  - [ ]* 14.3 Escrever property test — Property 11: Round-trip de criação e consulta preserva todos os atributos
+  - [x]* 14.3 Escrever property test — Property 11: Round-trip de criação e consulta preserva todos os atributos
     - **Property 11: Round-trip de criação e consulta preserva todos os atributos**
+    - Implementado em `TaskServicePropertyTest` — `roundTripCriacaoConsultaPreservaAtributos`
     - **Validates: Requirements 2.1, 8.3**
 
-  - [ ]* 14.4 Escrever property test — Property 12: Listagem respeita a ordenação por score e prazo
+  - [x]* 14.4 Escrever property test — Property 12: Listagem respeita a ordenação por score e prazo
     - **Property 12: Listagem respeita a ordenação por score e prazo**
+    - Implementado em `TaskServicePropertyTest` — `listagemRespeitaOrdenacaoPorScoreEPrazo`
     - **Validates: Requirements 2.3, 2.4**
 
-  - [ ]* 14.5 Escrever property test — Property 13: Filtro de status retorna apenas tarefas com o status solicitado
+  - [x]* 14.5 Escrever property test — Property 13: Filtro de status retorna apenas tarefas com o status solicitado
     - **Property 13: Filtro de status retorna apenas tarefas com o status solicitado**
+    - Implementado em `TaskServicePropertyTest` — `filtroStatusRetornaApenasStatusSolicitado`
     - **Validates: Requirements 2.5**
 
-  - [ ]* 14.6 Escrever property test — Property 14: Filtro de criticidade retorna apenas tarefas com a criticidade solicitada
+  - [x]* 14.6 Escrever property test — Property 14: Filtro de criticidade retorna apenas tarefas com a criticidade solicitada
     - **Property 14: Filtro de criticidade retorna apenas tarefas com a criticidade solicitada**
+    - Implementado em `TaskServicePropertyTest` — `filtroCriticidadeRetornaApenasCriticidadeSolicitada`
     - **Validates: Requirements 2.6**
 
-  - [ ]* 14.7 Escrever property test — Property 15: Tarefas encerradas rejeitam atualizações de campos
+  - [x]* 14.7 Escrever property test — Property 15: Tarefas encerradas rejeitam atualizações de campos
     - **Property 15: Tarefas encerradas rejeitam atualizações de campos**
+    - Implementado em `TaskServicePropertyTest` — `tarefasEncerradasRejeitamAtualizacoes`
     - **Validates: Requirements 3.6**
 
-  - [ ]* 14.8 Escrever property test — Property 16: Transições válidas são aceitas e atualizam o timestamp
-    - **Property 16: Transições válidas são aceitas e atualizam o timestamp**
+  - [x]* 14.8 Escrever property test — Property 16: Transições válidas são aceitas e atualizam o timestamp
+    - **Property 16: Transições válidas são aceitas e atualizam o status**
+    - Implementado em `TaskServicePropertyTest` — `transicoesValidasSaoAceitas`
     - **Validates: Requirements 4.1, 4.2, 4.3**
 
-  - [ ]* 14.9 Escrever property test — Property 17: Transições a partir de estados terminais são sempre rejeitadas
+  - [x]* 14.9 Escrever property test — Property 17: Transições a partir de estados terminais são sempre rejeitadas
     - **Property 17: Transições a partir de estados terminais são sempre rejeitadas**
+    - Implementado em `TaskServicePropertyTest` — `transicoesDeEstadosTerminaisSaoSempreRejeitadas`
     - **Validates: Requirements 4.4**
 
-  - [ ]* 14.10 Escrever property test — Property 18: Respostas de erro seguem o formato padronizado
-    - **Property 18: Respostas de erro seguem o formato padronizado**
+  - [x]* 14.10 Escrever property test — Property 18: Respostas de erro seguem o formato padronizado
+    - **Property 18: Exceções de domínio carregam informações estruturadas**
+    - Implementado em `TaskServicePropertyTest` — `excecoesDeDominioCarregamInformacoesEstruturadas`
     - **Validates: Requirements 7.2, 7.5**
 
-  - [ ]* 14.11 Escrever property test — Property 19: Deleção remove a tarefa de todas as visões
+  - [x]* 14.11 Escrever property test — Property 19: Deleção remove a tarefa de todas as visões
     - **Property 19: Deleção remove a tarefa de todas as visões**
+    - Implementado em `TaskServicePropertyTest` — `delecaoRemoveTarefaDeTodasAsVisoes`
     - **Validates: Requirements 5.1, 5.2, 5.3**
 
-  - [ ]* 14.12 Escrever property test — Property 20: Recálculo de score após atualização de campos influentes
-    - **Property 20: Recálculo de score após atualização de campos influentes**
+  - [x]* 14.12 Escrever property test — Property 20: Recálculo de score após atualização de campos influentes
+    - **Property 20: Recálculo de criticidade após atualização de campos influentes**
+    - Implementado em `TaskServicePropertyTest` — `recalculoCriticidadeAposAtualizacao`
     - **Validates: Requirements 3.2**
 
 - [ ] 15. Configurar OpenAPI e Swagger UI
