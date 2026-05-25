@@ -183,16 +183,18 @@ Implementação incremental da TaskFlow API em Java 21 + Spring Boot 3.x + Postg
     - Cobre tarefas encerradas; `TransicaoInvalidaException` e `TarefaEncerradaException` ainda não integradas ao fluxo HTTP
     - _Requirements: 4.4, 4.5, 3.6_
 
-  - [ ] 11.5 Mapear `DataAccessException` → 503 sem expor detalhes internos
-    - **Pendente**
+  - [x] 11.5 Mapear `DataAccessException` → 503 sem expor detalhes internos
+    - Handler `handleDataAccess` retorna 503 com mensagem genérica — não expõe detalhes do banco
     - _Requirements: 8.5_
 
-  - [ ] 11.6 Mapear `Exception` (fallback) → 500 sem expor stack trace
-    - **Pendente**
+  - [x] 11.6 Mapear `Exception` (fallback) → 500 sem expor stack trace
+    - Handler `handleGeneric` retorna 500 com mensagem genérica — não expõe stack trace nem mensagem interna
     - _Requirements: 7.4_
 
-  - [ ]* 11.7 Escrever testes unitários para `GlobalExceptionHandler`
-    - Verificar formato padronizado de `ErrorResponse` para cada tipo de exceção (Property 18)
+  - [x]* 11.7 Escrever testes unitários para `GlobalExceptionHandler`
+    - Implementado em `GlobalExceptionHandlerTest` com 24 testes organizados em 6 grupos `@Nested`
+    - Cobre: 404 (3), 409 (3), 422 TarefaEncerrada (4), 422 TransicaoInvalida (5), 400 validação (3), 503 DataAccess (4), 500 fallback (5)
+    - Verifica status HTTP, título, detail e ausência de informações internas sensíveis
     - _Requirements: 7.5_
 
 - [x] 12. Implementar `TaskController` — endpoints REST
