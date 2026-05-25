@@ -1,7 +1,7 @@
 package br.com.sctec.taskflow.domain.entity;
 
 import br.com.sctec.taskflow.domain.enums.Criticidade;
-import br.com.sctec.taskflow.domain.enums.Status;
+import br.com.sctec.taskflow.domain.enums.StatusTarefa;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -46,7 +46,7 @@ public class Task {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Builder.Default
-    private Status status = Status.PENDENTE;
+    private StatusTarefa status = StatusTarefa.PENDENTE;
 
     @Column(nullable = false)
     @Builder.Default

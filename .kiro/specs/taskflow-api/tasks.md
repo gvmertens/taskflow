@@ -13,18 +13,18 @@ Implementação incremental da TaskFlow API em Java 21 + Spring Boot 3.x + Postg
   - Criar `application.properties` com configurações de datasource, JPA e Flyway
   - _Requirements: 9.1, 9.2, 9.3, 9.4, 10.4_
 
-- [ ] 2. Implementar camada de domínio — enums e entidade Tarefa
-  - [ ] 2.1 Criar enums `Criticidade` e `StatusTarefa`
+- [x] 2. Implementar camada de domínio — enums e entidade Tarefa
+  - [x] 2.1 Criar enums `Criticidade` e `StatusTarefa`
     - Implementar `Criticidade` com valores `BAIXA`, `MEDIA`, `ALTA`, `URGENTE`
     - Implementar `StatusTarefa` com valores `PENDENTE`, `EM_ANDAMENTO`, `CONCLUIDA`, `CANCELADA`
     - _Requirements: 1.5, 4.7_
 
-  - [ ] 2.2 Criar entidade de domínio `Tarefa`
+  - [x] 2.2 Criar entidade de domínio `Tarefa`
     - Implementar classe POJO com todos os campos: `id`, `titulo`, `descricao`, `prazo`, `criticidade`, `status`, `scorePrioridade`, `criadoEm`, `atualizadoEm`, `concluidoEm`
     - _Requirements: 1.1, 1.2, 8.3_
 
-- [ ] 3. Implementar `Priorizador` — componente de domínio puro
-  - [ ] 3.1 Implementar classe `Priorizador` com método `calcular(Tarefa tarefa, Instant referencia)`
+- [x] 3. Implementar `Priorizador` — componente de domínio puro
+  - [x] 3.1 Implementar classe `Priorizador` com método `calcular(Tarefa tarefa, Instant referencia)`
     - Implementar lógica de `criticidadeScore` (BAIXA=10, MEDIA=25, ALTA=50, URGENTE=70)
     - Implementar lógica de `deadlineScore` (vencida→100, ≤24h→+25, ≤72h→+15, ≤168h→+8, senão→+0)
     - Implementar lógica de `ageBonus` (≥30 dias→+5, ≥7 dias→+3, senão→+0)
@@ -61,8 +61,8 @@ Implementação incremental da TaskFlow API em Java 21 + Spring Boot 3.x + Postg
     - Testar MEDIA com prazo em 5 dias e 10 dias de idade
     - _Requirements: 10.1_
 
-- [ ] 4. Implementar `StatusMachine` — regras de transição de status
-  - [ ] 4.1 Implementar classe `StatusMachine` com método `validarTransicao(StatusTarefa atual, StatusTarefa destino)`
+- [x] 4. Implementar `StatusMachine` — regras de transição de status
+  - [x] 4.1 Implementar classe `StatusMachine` com método `validarTransicao(StatusTarefa atual, StatusTarefa destino)`
     - Definir conjunto de transições válidas: `PENDENTE→EM_ANDAMENTO`, `PENDENTE→CONCLUIDA`, `PENDENTE→CANCELADA`, `EM_ANDAMENTO→CONCLUIDA`, `EM_ANDAMENTO→CANCELADA`
     - Lançar `TarefaEncerradaException` quando `atual` for `CONCLUIDA` ou `CANCELADA`
     - Lançar `TransicaoInvalidaException` para demais transições inválidas
@@ -74,17 +74,17 @@ Implementação incremental da TaskFlow API em Java 21 + Spring Boot 3.x + Postg
     - Testar rejeição de qualquer transição a partir de `CONCLUIDA` e `CANCELADA`
     - _Requirements: 10.3_
 
-- [ ] 5. Criar exceções de domínio
+- [x] 5. Criar exceções de domínio
   - Implementar `TarefaNaoEncontradaException`
   - Implementar `TransicaoInvalidaException`
   - Implementar `TarefaEncerradaException`
   - _Requirements: 2.2, 3.5, 4.4, 4.5, 4.6, 5.4_
 
-- [ ] 6. Checkpoint — Verificar domínio puro
+- [x] 6. Checkpoint — Verificar domínio puro
   - Garantir que todos os testes do pacote `domain` passam e cobertura ≥ 80%. Perguntar ao usuário se houver dúvidas.
 
 - [ ] 7. Implementar camada de infraestrutura — persistência JPA e Flyway
-  - [ ] 7.1 Criar migration Flyway `V1__create_tarefas_table.sql`
+  - [x] 7.1 Criar migration Flyway `V1__create_tarefas_table.sql`
     - Criar tabela `tarefas` com todos os campos, constraints e índices conforme o design
     - _Requirements: 8.1, 8.2, 8.3, 8.4_
 
@@ -98,7 +98,7 @@ Implementação incremental da TaskFlow API em Java 21 + Spring Boot 3.x + Postg
     - Definir ordenação padrão `score_prioridade DESC, prazo ASC` via `@Query` ou `Sort`
     - _Requirements: 2.3, 2.4, 2.5, 2.6, 2.7_
 
-  - [ ] 7.4 Criar `TarefaMapper` para conversão entre `Tarefa` (domínio) e `TarefaEntity` (persistência)
+  - [x] 7.4 Criar `TarefaMapper` para conversão entre `Tarefa` (domínio) e `TarefaEntity` (persistência)
     - Implementar métodos `toEntity(Tarefa)` e `toDomain(TarefaEntity)`
     - _Requirements: 8.3_
 
