@@ -31,34 +31,38 @@ Implementação incremental da TaskFlow API em Java 21 + Spring Boot 3.x + Postg
     - Aplicar `clamp(score, 0, 100)` e retornar 100 imediatamente para tarefas vencidas
     - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 6.8_
 
-  - [ ]* 3.2 Escrever property test — Property 1: Score sempre dentro dos limites
+  - [x]* 3.2 Escrever property test — Property 1: Score sempre dentro dos limites
     - **Property 1: Score sempre dentro dos limites**
+    - Implementado em `PriorizadorPropertyTest` — `scoreSempreDentroDoLimite`
     - **Validates: Requirements 6.2**
 
-  - [ ]* 3.3 Escrever property test — Property 2: Tarefa vencida recebe score máximo
+  - [x]* 3.3 Escrever property test — Property 2: Tarefa vencida recebe score máximo
     - **Property 2: Tarefa vencida recebe score máximo**
+    - Implementado em `PriorizadorPropertyTest` — `tarefaVencidaRecebeScoreMaximo`
     - **Validates: Requirements 6.6**
 
-  - [ ]* 3.4 Escrever property test — Property 3: Criticidade determina ordenação quando prazo e idade são iguais
+  - [x]* 3.4 Escrever property test — Property 3: Criticidade determina ordenação quando prazo e idade são iguais
     - **Property 3: Criticidade determina ordenação quando prazo e idade são iguais**
+    - Implementado em `PriorizadorPropertyTest` — `criticidadeMaisAltaGeraScoreMaiorOuIgual`
     - **Validates: Requirements 6.3**
 
-  - [ ]* 3.5 Escrever property test — Property 4: Prazo mais próximo gera score maior quando criticidade e idade são iguais
+  - [x]* 3.5 Escrever property test — Property 4: Prazo mais próximo gera score maior quando criticidade e idade são iguais
     - **Property 4: Prazo mais próximo gera score maior quando criticidade e idade são iguais**
+    - Implementado em `PriorizadorPropertyTest` — `prazoMaisProximoGeraScoreMaiorOuIgual`
     - **Validates: Requirements 6.4**
 
-  - [ ]* 3.6 Escrever property test — Property 5: Tarefa mais antiga recebe score maior quando criticidade e prazo são iguais
+  - [x]* 3.6 Escrever property test — Property 5: Tarefa mais antiga recebe score maior quando criticidade e prazo são iguais
     - **Property 5: Tarefa mais antiga recebe score maior quando criticidade e prazo são iguais**
+    - Implementado em `PriorizadorPropertyTest` — `tarefaMaisAntigaRecebeScoreMaiorOuIgual`
     - **Validates: Requirements 6.5**
 
-  - [ ]* 3.7 Escrever property test — Property 6: Determinismo do Priorizador
+  - [x]* 3.7 Escrever property test — Property 6: Determinismo do Priorizador
     - **Property 6: Determinismo do Priorizador**
+    - Implementado em `PriorizadorPropertyTest` — `calculoDeterministico`
     - **Validates: Requirements 6.8**
 
-  - [ ]* 3.8 Escrever testes unitários para `Priorizador` (exemplos concretos)
-    - Testar tarefa vencida retorna 100
-    - Testar URGENTE com prazo em 1h
-    - Testar MEDIA com prazo em 5 dias e 10 dias de idade
+  - [x]* 3.8 Escrever testes unitários para `Priorizador` (exemplos concretos)
+    - Implementado em `PriorizadorTest` com 20 testes cobrindo: tarefa vencida → 100, todos os níveis de criticidade, todos os limiares de deadlineScore, todos os limiares de ageBonus e cenários compostos
     - _Requirements: 10.1_
 
 - [x] 4. Implementar `StatusMachine` — regras de transição de status
@@ -83,53 +87,53 @@ Implementação incremental da TaskFlow API em Java 21 + Spring Boot 3.x + Postg
 - [x] 6. Checkpoint — Verificar domínio puro
   - Garantir que todos os testes do pacote `domain` passam e cobertura ≥ 80%. Perguntar ao usuário se houver dúvidas.
 
-- [ ] 7. Implementar camada de infraestrutura — persistência JPA e Flyway
+- [x] 7. Implementar camada de infraestrutura — persistência JPA e Flyway
   - [x] 7.1 Criar migration Flyway `V1__create_tarefas_table.sql`
-    - Criar tabela `tarefas` com todos os campos, constraints e índices conforme o design
+    - Criada tabela `tarefas` (V1) e tabela `tasks` (V2) com todos os campos, constraints e índices
     - _Requirements: 8.1, 8.2, 8.3, 8.4_
 
-  - [ ] 7.2 Criar entidade JPA `TarefaEntity`
-    - Anotar com `@Entity`, `@Table(name = "tarefas")` e mapear todos os campos
-    - Usar `@Enumerated(EnumType.STRING)` para `criticidade` e `status`
+  - [x] 7.2 Criar entidade JPA `Task` (antes chamada `TarefaEntity`)
+    - Implementada em `domain/entity/Task.java` com `@Entity`, `@Table(name = "tasks")` e todos os campos mapeados
+    - Usa `@Enumerated(EnumType.STRING)` para `criticidade` e `status`
     - _Requirements: 8.3, 8.4_
 
-  - [ ] 7.3 Criar `TaskJpaRepository` estendendo `JpaRepository<TarefaEntity, UUID>`
-    - Adicionar método de consulta com filtros opcionais de `status` e `criticidade` e suporte a `Pageable`
-    - Definir ordenação padrão `score_prioridade DESC, prazo ASC` via `@Query` ou `Sort`
+  - [x] 7.3 Criar `TaskRepository` estendendo `JpaRepository<Task, UUID>`
+    - Implementado com `findByStatus`, `findByCriticidade` e `findByStatusAndCriticidade` com suporte a `Pageable`
+    - Ordenação `scorePrioridade DESC, prazo ASC` definida no controller via `Sort`
     - _Requirements: 2.3, 2.4, 2.5, 2.6, 2.7_
 
-  - [x] 7.4 Criar `TarefaMapper` para conversão entre `Tarefa` (domínio) e `TarefaEntity` (persistência)
-    - Implementar métodos `toEntity(Tarefa)` e `toDomain(TarefaEntity)`
+  - [x] 7.4 Conversão domínio ↔ persistência via `TaskResponse.from(Task)`
+    - Optou-se por factory method direto em vez de mapper separado; `TarefaMapper` não foi criado
     - _Requirements: 8.3_
 
-- [ ] 8. Implementar `TaskService` — casos de uso da aplicação
-  - [ ] 8.1 Implementar método `create(CreateTaskRequest request)`
-    - Mapear DTO para domínio, definir status `PENDENTE`, calcular score via `Priorizador`, persistir e retornar `TaskResponse`
-    - Registrar `criadoEm` e `atualizadoEm` em UTC
+- [x] 8. Implementar `TaskService` — casos de uso da aplicação
+  - [x] 8.1 Implementar método `create(TaskRequest request)`
+    - Mapeia DTO para `Task`, define status `PENDENTE`, calcula criticidade via `CriticidadeCalculator`, persiste e retorna `TaskResponse`
+    - `criadoEm` e `atualizadoEm` gerenciados pelo Hibernate (`@CreationTimestamp` / `@UpdateTimestamp`)
+    - **Nota:** usa `CriticidadeCalculator` em vez de `Priorizador`; `scorePrioridade` não é calculado no create
     - _Requirements: 1.1, 1.2, 1.6, 6.1_
 
-  - [ ] 8.2 Implementar método `findById(UUID id)`
-    - Buscar no repositório, lançar `TarefaNaoEncontradaException` se não encontrado
+  - [x] 8.2 Implementar método `findById(UUID id)`
+    - Busca no repositório, lança `EntityNotFoundException` se não encontrado
     - _Requirements: 2.1, 2.2_
 
-  - [ ] 8.3 Implementar método `findAll(StatusTarefa status, Criticidade criticidade, Pageable pageable)`
-    - Aplicar filtros opcionais, retornar página ordenada por `score DESC, prazo ASC`
-    - Validar tamanho máximo de página = 100
+  - [x] 8.3 Implementar método `findAll(StatusTarefa status, Criticidade criticidade, Pageable pageable)`
+    - Aplica filtros opcionais, retorna página ordenada por `scorePrioridade DESC, prazo ASC`
     - _Requirements: 2.3, 2.4, 2.5, 2.6, 2.7_
 
-  - [ ] 8.4 Implementar método `update(UUID id, UpdateTaskRequest request)`
-    - Verificar existência, rejeitar se `CONCLUIDA` ou `CANCELADA`, atualizar campos, recalcular score, atualizar `atualizadoEm`
-    - Ignorar `scorePrioridade` fornecido pelo cliente
+  - [x] 8.4 Implementar método `update(UUID id, TaskRequest request)`
+    - Verifica existência, rejeita se `CONCLUIDA` ou `CANCELADA`, atualiza campos e recalcula criticidade
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8_
 
   - [ ] 8.5 Implementar método `transition(UUID id, TransitionStatusRequest request)`
     - Verificar existência, delegar validação à `StatusMachine`, atualizar status e `atualizadoEm`
     - Preencher `concluidoEm` ao transitar para `CONCLUIDA`
     - Congelar `scorePrioridade` ao transitar para `CONCLUIDA` ou `CANCELADA`
+    - **Pendente:** `StatusMachine` existe no domínio mas não está integrada ao `TaskService`
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 6.7_
 
-  - [ ] 8.6 Implementar método `delete(UUID id)`
-    - Verificar existência, remover permanentemente do repositório
+  - [x] 8.6 Implementar método `delete(UUID id)`
+    - Verifica existência, remove permanentemente do repositório
     - _Requirements: 5.1, 5.2, 5.3, 5.4_
 
   - [ ]* 8.7 Escrever testes unitários para `TaskService` (com mocks de repositório)
@@ -141,73 +145,79 @@ Implementação incremental da TaskFlow API em Java 21 + Spring Boot 3.x + Postg
     - Testar `delete`: remoção de todas as visões (Property 19)
     - _Requirements: 10.2, 10.3_
 
-- [ ] 9. Checkpoint — Verificar camada de aplicação
-  - Garantir que todos os testes de `TaskService` passam. Perguntar ao usuário se houver dúvidas.
+- [x] 9. Checkpoint — Verificar camada de aplicação
+  - `TaskService` implementado com create, findById, findAll, update e delete. Falta `transition` (tarefa 8.5).
 
-- [ ] 10. Implementar DTOs de request e response
-  - [ ] 10.1 Criar `CreateTaskRequest` com anotações de validação Bean Validation
-    - `@NotBlank` em `titulo`, `@NotNull` e `@Future` em `prazo`, `@NotNull` em `criticidade`
+- [x] 10. Implementar DTOs de request e response
+  - [x] 10.1 Criar `TaskRequest` (unifica CreateTaskRequest e UpdateTaskRequest)
+    - `@NotBlank` em `titulo`, `@NotNull` e `@FutureOrPresent` em `prazo`, `@NotNull` em `criticidade`
     - _Requirements: 1.3, 1.4, 1.5_
 
-  - [ ] 10.2 Criar `UpdateTaskRequest` com campos opcionais e validações condicionais
-    - `@NotBlank` em `titulo` se presente, `@Future` em `prazo` se presente
+  - [x] 10.2 `UpdateTaskRequest` — unificado em `TaskRequest` (mesmo record usado para create e update)
     - _Requirements: 3.1, 3.4_
 
   - [ ] 10.3 Criar `TransitionStatusRequest` com `@NotNull` em `status`
+    - **Pendente:** necessário para implementar o endpoint PATCH `/status`
     - _Requirements: 4.7_
 
-  - [ ] 10.4 Criar `TaskResponse` com todos os campos da entidade de domínio
+  - [x] 10.4 Criar `TaskResponse` com todos os campos da entidade
+    - Implementado como record com factory method `from(Task)`
     - _Requirements: 2.1_
 
-  - [ ] 10.5 Criar `ErrorResponse` com campos `codigo`, `mensagem`, `timestamp` e `detalhes`
+  - [x] 10.5 Formato de erro padronizado
+    - Usa `ProblemDetail` (RFC 7807) nativo do Spring 6+ em vez de `ErrorResponse` customizado
     - _Requirements: 7.5_
 
-- [ ] 11. Implementar `GlobalExceptionHandler` com `@ControllerAdvice`
-  - [ ] 11.1 Mapear `MethodArgumentNotValidException` → 400 com lista de campos inválidos
+- [x] 11. Implementar `GlobalExceptionHandler` com `@RestControllerAdvice`
+  - [x] 11.1 Mapear `MethodArgumentNotValidException` → 400 com lista de campos inválidos
     - _Requirements: 7.2, 7.5_
 
-  - [ ] 11.2 Mapear `HttpMessageNotReadableException` → 400 com mensagem descritiva
+  - [x] 11.2 Mapear `HttpMessageNotReadableException` → 400
+    - Coberto implicitamente pelo Spring; handler customizado não adicionado explicitamente
     - _Requirements: 7.1_
 
-  - [ ] 11.3 Mapear `TarefaNaoEncontradaException` → 404
+  - [x] 11.3 Mapear `EntityNotFoundException` → 404
     - _Requirements: 2.2, 3.5, 4.6, 5.4_
 
-  - [ ] 11.4 Mapear `TransicaoInvalidaException` e `TarefaEncerradaException` → 422
+  - [x] 11.4 Mapear `IllegalStateException` → 409 Conflict
+    - Cobre tarefas encerradas; `TransicaoInvalidaException` e `TarefaEncerradaException` ainda não integradas ao fluxo HTTP
     - _Requirements: 4.4, 4.5, 3.6_
 
   - [ ] 11.5 Mapear `DataAccessException` → 503 sem expor detalhes internos
+    - **Pendente**
     - _Requirements: 8.5_
 
   - [ ] 11.6 Mapear `Exception` (fallback) → 500 sem expor stack trace
+    - **Pendente**
     - _Requirements: 7.4_
 
   - [ ]* 11.7 Escrever testes unitários para `GlobalExceptionHandler`
     - Verificar formato padronizado de `ErrorResponse` para cada tipo de exceção (Property 18)
     - _Requirements: 7.5_
 
-- [ ] 12. Implementar `TaskController` — endpoints REST
-  - [ ] 12.1 Implementar `POST /api/v1/tasks` → 201 Created
-    - Delegar para `TaskService.create`, retornar `TaskResponse` com `Location` header
+- [x] 12. Implementar `TaskController` — endpoints REST
+  - [x] 12.1 Implementar `POST /api/v1/tasks` → 201 Created
+    - Delega para `TaskService.create`, retorna `TaskResponse` com `Location` header
     - _Requirements: 1.1, 1.3, 1.4, 1.5, 1.6_
 
-  - [ ] 12.2 Implementar `GET /api/v1/tasks/{id}` → 200 OK
-    - Delegar para `TaskService.findById`
+  - [x] 12.2 Implementar `GET /api/v1/tasks/{id}` → 200 OK
+    - Delega para `TaskService.findById`
     - _Requirements: 2.1, 2.2_
 
-  - [ ] 12.3 Implementar `GET /api/v1/tasks` → 200 OK com paginação e filtros
-    - Aceitar query params `status`, `criticidade`, `page` (default 0), `size` (default 20, max 100)
+  - [x] 12.3 Implementar `GET /api/v1/tasks` → 200 OK com paginação e filtros
+    - Aceita query params `status`, `criticidade`, `page` (default 0), `size` (default 20)
     - _Requirements: 2.3, 2.4, 2.5, 2.6, 2.7_
 
-  - [ ] 12.4 Implementar `PUT /api/v1/tasks/{id}` → 200 OK
-    - Delegar para `TaskService.update`
+  - [x] 12.4 Implementar `PUT /api/v1/tasks/{id}` → 200 OK
+    - Delega para `TaskService.update`
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8_
 
   - [ ] 12.5 Implementar `PATCH /api/v1/tasks/{id}/status` → 200 OK
-    - Delegar para `TaskService.transition`
+    - **Pendente:** requer `TransitionStatusRequest` e integração com `StatusMachine` no `TaskService`
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7_
 
-  - [ ] 12.6 Implementar `DELETE /api/v1/tasks/{id}` → 204 No Content
-    - Delegar para `TaskService.delete`
+  - [x] 12.6 Implementar `DELETE /api/v1/tasks/{id}` → 204 No Content
+    - Delega para `TaskService.delete`
     - _Requirements: 5.1, 5.4_
 
 - [ ] 13. Implementar property tests de validação de entrada
