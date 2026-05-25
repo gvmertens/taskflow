@@ -72,10 +72,8 @@ Implementação incremental da TaskFlow API em Java 21 + Spring Boot 3.x + Postg
     - Lançar `TransicaoInvalidaException` para demais transições inválidas
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5_
 
-  - [ ]* 4.2 Escrever testes unitários para `StatusMachine`
-    - Testar todas as 5 transições válidas
-    - Testar rejeição de `EM_ANDAMENTO→PENDENTE`
-    - Testar rejeição de qualquer transição a partir de `CONCLUIDA` e `CANCELADA`
+  - [x]* 4.2 Escrever testes unitários para `StatusMachine`
+    - Implementado em `StatusMachineTest` com 14 testes cobrindo: 5 transições válidas, rejeição de `EM_ANDAMENTO→PENDENTE`, rejeição de qualquer transição a partir de `CONCLUIDA` e `CANCELADA` (via `@ParameterizedTest`), e verificação de mensagens e campos das exceções
     - _Requirements: 10.3_
 
 - [x] 5. Criar exceções de domínio
