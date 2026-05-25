@@ -2,6 +2,7 @@ package br.com.sctec.taskflow.controller;
 
 import br.com.sctec.taskflow.domain.enums.Criticidade;
 import br.com.sctec.taskflow.domain.enums.StatusTarefa;
+import br.com.sctec.taskflow.dto.TransitionStatusRequest;
 import br.com.sctec.taskflow.dto.TaskRequest;
 import br.com.sctec.taskflow.dto.TaskResponse;
 import br.com.sctec.taskflow.service.TaskService;
@@ -90,6 +91,24 @@ public class TaskController {
             @PathVariable UUID id,
             @Valid @RequestBody TaskRequest request) {
         return ResponseEntity.ok(taskService.update(id, request));
+    }
+
+    /**
+     * Realiza a transição de status de uma tarefa conforme as regras da máquina de estados.
+     *
+     * <p>Transições válidas:
+     * <ul>
+     *   <li>PENDENTE → EM_ANDAMENTO, CONCLUIDA, CANCELADA</li>
+     *   <li>EM_ANDAMENTO → CONCLUIDA, CANCELADA</li>
+     * </ul>
+     *
+     * @return 200 OK com a tarefa atualizada, 404 se não encontrada, 422 se transição inválida
+     */
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<TaskResponse> transition(
+            @PathVariable UUID id,
+            @Valid @RequestBody TransitionStatusRequest request) {
+        return ResponseEntity.ok(taskService.transition(id, request));
     }
 
     /**

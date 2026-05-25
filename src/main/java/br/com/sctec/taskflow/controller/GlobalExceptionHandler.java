@@ -1,5 +1,7 @@
 package br.com.sctec.taskflow.controller;
 
+import br.com.sctec.taskflow.domain.exception.TarefaEncerradaException;
+import br.com.sctec.taskflow.domain.exception.TransicaoInvalidaException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -37,6 +39,31 @@ public class GlobalExceptionHandler {
         ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.CONFLICT);
         problem.setTitle("Operação inválida");
         problem.setDetail(ex.getMessage());
+        return problem;
+    }
+
+    /**
+     * Tentativa de transição a partir de estado terminal → 422 Unprocessable Entity.
+     */
+    @ExceptionHandler(TarefaEncerradaException.class)
+    public ProblemDetail handleTarefaEncerrada(TarefaEncerradaException ex) {
+        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.UNPROCESSABLE_ENTITY);
+        problem.setTitle("Tarefa encerrada");
+        problem.setDetail(ex.getMessage());
+        problem.setProperty("statusAtual", ex.getStatusAtual());
+        return problem;
+    }
+
+    /**
+     * Transição de status não permitida pelas regras de negócio → 422 Unprocessable Entity.
+     */
+    @ExceptionHandler(TransicaoInvalidaException.class)
+    public ProblemDetail handleTransicaoInvalida(TransicaoInvalidaException ex) {
+        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.UNPROCESSABLE_ENTITY);
+        problem.setTitle("Transição inválida");
+        problem.setDetail(ex.getMessage());
+        problem.setProperty("statusAtual", ex.getStatusAtual());
+        problem.setProperty("statusDestino", ex.getStatusDestino());
         return problem;
     }
 
