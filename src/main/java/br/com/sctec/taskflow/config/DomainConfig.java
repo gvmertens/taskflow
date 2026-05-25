@@ -1,6 +1,8 @@
 package br.com.sctec.taskflow.config;
 
 import br.com.sctec.taskflow.domain.service.CriticidadeCalculator;
+import br.com.sctec.taskflow.domain.service.Priorizador;
+import br.com.sctec.taskflow.domain.service.StatusMachine;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -17,5 +19,15 @@ public class DomainConfig {
     @Bean
     public CriticidadeCalculator criticidadeCalculator() {
         return new CriticidadeCalculator();
+    }
+
+    @Bean
+    public StatusMachine statusMachine() {
+        return new StatusMachine();
+    }
+
+    @Bean
+    public Priorizador priorizador() {
+        return new Priorizador();
     }
 }

@@ -123,24 +123,26 @@ Implementação incremental da TaskFlow API em Java 21 + Spring Boot 3.x + Postg
     - Verifica existência, rejeita se `CONCLUIDA` ou `CANCELADA`, atualiza campos e recalcula criticidade
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8_
 
-  - [ ] 8.5 Implementar método `transition(UUID id, TransitionStatusRequest request)`
-    - Verificar existência, delegar validação à `StatusMachine`, atualizar status e `atualizadoEm`
-    - Preencher `concluidoEm` ao transitar para `CONCLUIDA`
-    - Congelar `scorePrioridade` ao transitar para `CONCLUIDA` ou `CANCELADA`
-    - **Pendente:** `StatusMachine` existe no domínio mas não está integrada ao `TaskService`
+  - [x] 8.5 Implementar método `transition(UUID id, TransitionStatusRequest request)`
+    - Verifica existência, delega validação à `StatusMachine`, atualiza status e `atualizadoEm` (via `@UpdateTimestamp`)
+    - Preenche `concluidaEm` ao transitar para `CONCLUIDA`
+    - Congela `scorePrioridade` ao transitar para `CONCLUIDA` ou `CANCELADA` usando o `Priorizador`
+    - `TarefaEncerradaException` → 422, `TransicaoInvalidaException` → 422 mapeados no `GlobalExceptionHandler`
+    - `PATCH /api/v1/tasks/{id}/status` adicionado ao `TaskController`
+    - `TransitionStatusRequest` criado em `br.com.sctec.taskflow.dto`
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 6.7_
 
   - [x] 8.6 Implementar método `delete(UUID id)`
     - Verifica existência, remove permanentemente do repositório
     - _Requirements: 5.1, 5.2, 5.3, 5.4_
 
-  - [ ]* 8.7 Escrever testes unitários para `TaskService` (com mocks de repositório)
-    - Testar `create`: status PENDENTE, score calculado, timestamps UTC (Property 10)
-    - Testar `findById`: retorno correto e exceção para ID inexistente
-    - Testar `findAll`: ordenação e filtros (Properties 12, 13, 14)
-    - Testar `update`: recálculo de score, rejeição de tarefa encerrada (Properties 15, 20)
-    - Testar `transition`: congelamento de score (Property 7), round-trip (Property 11)
-    - Testar `delete`: remoção de todas as visões (Property 19)
+  - [x]* 8.7 Escrever testes unitários para `TaskService` (com mocks de repositório)
+    - Implementado em `TaskServiceTest` com 33 testes usando `@ExtendWith(MockitoExtension.class)`
+    - `Create` (5): status PENDENTE, criticidade calculada, criticidade efetiva persistida, campos mapeados, `save` chamado uma vez
+    - `FindById` (3): retorno correto, `EntityNotFoundException` com ID na mensagem, delegação ao repositório
+    - `FindAll` (13): 4 combinações de filtros + `@ParameterizedTest` para todos os valores de `StatusTarefa` e `Criticidade`
+    - `Update` (7): recálculo de criticidade, rejeição de `CONCLUIDA`/`CANCELADA`, `EntityNotFoundException`, `save` não chamado quando encerrada
+    - `Delete` (5): remoção correta, `EntityNotFoundException`, `delete` não chamado para ID inexistente, entidade correta passada, deleção em qualquer status
     - _Requirements: 10.2, 10.3_
 
 - [x] 9. Checkpoint — Verificar camada de aplicação
@@ -154,8 +156,8 @@ Implementação incremental da TaskFlow API em Java 21 + Spring Boot 3.x + Postg
   - [x] 10.2 `UpdateTaskRequest` — unificado em `TaskRequest` (mesmo record usado para create e update)
     - _Requirements: 3.1, 3.4_
 
-  - [ ] 10.3 Criar `TransitionStatusRequest` com `@NotNull` em `status`
-    - **Pendente:** necessário para implementar o endpoint PATCH `/status`
+  - [x] 10.3 Criar `TransitionStatusRequest` com `@NotNull` em `status`
+    - Implementado em `br.com.sctec.taskflow.dto.TransitionStatusRequest` como record com `@NotNull`
     - _Requirements: 4.7_
 
   - [x] 10.4 Criar `TaskResponse` com todos os campos da entidade
@@ -210,8 +212,8 @@ Implementação incremental da TaskFlow API em Java 21 + Spring Boot 3.x + Postg
     - Delega para `TaskService.update`
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8_
 
-  - [ ] 12.5 Implementar `PATCH /api/v1/tasks/{id}/status` → 200 OK
-    - **Pendente:** requer `TransitionStatusRequest` e integração com `StatusMachine` no `TaskService`
+  - [x] 12.5 Implementar `PATCH /api/v1/tasks/{id}/status` → 200 OK
+    - Delega para `TaskService.transition`, retorna `TaskResponse`
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7_
 
   - [x] 12.6 Implementar `DELETE /api/v1/tasks/{id}` → 204 No Content

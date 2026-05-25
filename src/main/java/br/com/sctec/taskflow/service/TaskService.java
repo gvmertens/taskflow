@@ -3,9 +3,13 @@ package br.com.sctec.taskflow.service;
 import br.com.sctec.taskflow.domain.entity.Task;
 import br.com.sctec.taskflow.domain.enums.Criticidade;
 import br.com.sctec.taskflow.domain.enums.StatusTarefa;
+import br.com.sctec.taskflow.domain.model.Tarefa;
 import br.com.sctec.taskflow.domain.service.CriticidadeCalculator;
+import br.com.sctec.taskflow.domain.service.Priorizador;
+import br.com.sctec.taskflow.domain.service.StatusMachine;
 import br.com.sctec.taskflow.dto.TaskRequest;
 import br.com.sctec.taskflow.dto.TaskResponse;
+import br.com.sctec.taskflow.dto.TransitionStatusRequest;
 import br.com.sctec.taskflow.repository.TaskRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -13,7 +17,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.UUID;
 
 @Service
@@ -22,6 +28,8 @@ public class TaskService {
 
     private final TaskRepository repository;
     private final CriticidadeCalculator criticidadeCalculator;
+    private final StatusMachine statusMachine;
+    private final Priorizador priorizador;
 
     // -------------------------------------------------------------------------
     // CRUD principal
@@ -108,6 +116,50 @@ public class TaskService {
     }
 
     /**
+     * Realiza a transição de status de uma tarefa, aplicando as regras da máquina de estados.
+     *
+     * <p>Ao transitar para {@code CONCLUIDA}:
+     * <ul>
+     *   <li>Preenche {@code concluidaEm} com o instante atual (UTC)</li>
+     *   <li>Congela o {@code scorePrioridade} (não será recalculado)</li>
+     * </ul>
+     *
+     * <p>Ao transitar para {@code CANCELADA}:
+     * <ul>
+     *   <li>Congela o {@code scorePrioridade} (não será recalculado)</li>
+     * </ul>
+     *
+     * @throws jakarta.persistence.EntityNotFoundException se a tarefa não for encontrada
+     * @throws br.com.sctec.taskflow.domain.exception.TarefaEncerradaException se a tarefa já estiver em estado terminal
+     * @throws br.com.sctec.taskflow.domain.exception.TransicaoInvalidaException se a transição não for permitida
+     */
+    @Transactional
+    public TaskResponse transition(UUID id, TransitionStatusRequest request) {
+        Task task = getOrThrow(id);
+
+        // Delega a validação à StatusMachine — lança TarefaEncerradaException ou TransicaoInvalidaException
+        statusMachine.validarTransicao(task.getStatus(), request.status());
+
+        StatusTarefa novoStatus = request.status();
+        Instant agora = Instant.now();
+
+        // Preenche concluidaEm ao transitar para CONCLUIDA
+        if (novoStatus == StatusTarefa.CONCLUIDA) {
+            task.setConcluidaEm(agora);
+        }
+
+        // Congela o scorePrioridade ao transitar para estado terminal (CONCLUIDA ou CANCELADA)
+        if (novoStatus.isEncerrada()) {
+            int scoreAtual = calcularScore(task, agora);
+            task.setScorePrioridade(scoreAtual);
+        }
+
+        task.setStatus(novoStatus);
+
+        return TaskResponse.from(repository.save(task));
+    }
+
+    /**
      * Remove permanentemente uma tarefa pelo identificador.
      *
      * @throws jakarta.persistence.EntityNotFoundException se não encontrada
@@ -126,5 +178,26 @@ public class TaskService {
         return repository.findById(id)
                 .orElseThrow(() -> new jakarta.persistence.EntityNotFoundException(
                         "Tarefa não encontrada: " + id));
+    }
+
+    /**
+     * Calcula o score de prioridade atual da tarefa usando o {@link Priorizador}.
+     * Converte o prazo ({@code LocalDate}) para {@code Instant} (fim do dia UTC)
+     * para compatibilidade com a interface do {@link Priorizador}.
+     */
+    private int calcularScore(Task task, Instant referencia) {
+        Tarefa tarefa = new Tarefa(
+                task.getId(),
+                task.getTitulo(),
+                task.getDescricao(),
+                task.getPrazo().atStartOfDay(ZoneOffset.UTC).toInstant(),
+                task.getCriticidade(),
+                task.getStatus(),
+                task.getScorePrioridade(),
+                task.getCriadoEm() != null ? task.getCriadoEm() : referencia,
+                task.getAtualizadoEm() != null ? task.getAtualizadoEm() : referencia,
+                task.getConcluidaEm()
+        );
+        return priorizador.calcular(tarefa, referencia);
     }
 }
