@@ -1,7 +1,7 @@
 package br.com.sctec.taskflow.dto;
 
 import br.com.sctec.taskflow.domain.enums.Criticidade;
-import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -19,7 +19,7 @@ public record TaskRequest(
         String descricao,
 
         @NotNull(message = "O prazo é obrigatório")
-        @Future(message = "O prazo deve ser uma data futura")
+        @FutureOrPresent(message = "O prazo deve ser hoje ou uma data futura")
         LocalDate prazo,
 
         @NotNull(message = "A criticidade é obrigatória")

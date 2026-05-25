@@ -3,6 +3,7 @@ package br.com.sctec.taskflow.service;
 import br.com.sctec.taskflow.domain.entity.Task;
 import br.com.sctec.taskflow.domain.enums.Criticidade;
 import br.com.sctec.taskflow.domain.enums.StatusTarefa;
+import br.com.sctec.taskflow.domain.service.CriticidadeCalculator;
 import br.com.sctec.taskflow.dto.TaskRequest;
 import br.com.sctec.taskflow.dto.TaskResponse;
 import br.com.sctec.taskflow.repository.TaskRepository;
@@ -12,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Service
@@ -19,6 +21,7 @@ import java.util.UUID;
 public class TaskService {
 
     private final TaskRepository repository;
+    private final CriticidadeCalculator criticidadeCalculator;
 
     // -------------------------------------------------------------------------
     // CRUD principal
@@ -37,8 +40,9 @@ public class TaskService {
                 .status(StatusTarefa.PENDENTE)
                 .build();
 
-        // TODO: calcular score de prioridade via Priorizador
-        // task.setScorePrioridade(priorizador.calcular(task));
+        // Calcula a criticidade efetiva com base no prazo e na criticidade informada
+        Criticidade criticidadeEfetiva = criticidadeCalculator.calcular(task, LocalDate.now());
+        task.setCriticidade(criticidadeEfetiva);
 
         return TaskResponse.from(repository.save(task));
     }
@@ -96,8 +100,9 @@ public class TaskService {
         task.setPrazo(request.prazo());
         task.setCriticidade(request.criticidade());
 
-        // TODO: recalcular score de prioridade via Priorizador
-        // task.setScorePrioridade(priorizador.calcular(task));
+        // Recalcula a criticidade efetiva após a atualização dos dados
+        Criticidade criticidadeEfetiva = criticidadeCalculator.calcular(task, LocalDate.now());
+        task.setCriticidade(criticidadeEfetiva);
 
         return TaskResponse.from(repository.save(task));
     }
